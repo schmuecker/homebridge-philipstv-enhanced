@@ -1070,8 +1070,8 @@ HttpStatusAccessory.prototype = {
 	*/
 
             return [informationService, this.televisionService, this.speakerService];
-        } else {
-            return [informationService, this.televisionService, this.speakerService];
-        }
+//        } else {
+//            return [informationService, this.televisionService, this.speakerService];
+//        }
     }
 };
