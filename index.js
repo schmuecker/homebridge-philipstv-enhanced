@@ -1029,7 +1029,8 @@ HttpStatusAccessory.prototype = {
         this.televisionService.addLinkedService(this.speakerService);
 
         // Volume
-        this.volumeService = new Service.Lightbulb(this.name + " Volume", '0b');
+        /*
+	this.volumeService = new Service.Lightbulb(this.name + " Volume", '0b');
         this.volumeService
             .getCharacteristic(Characteristic.On)
             .on('get', this.getVolumeState.bind(this))
@@ -1066,10 +1067,11 @@ HttpStatusAccessory.prototype = {
             	.getCharacteristic(Characteristic.Brightness)
             	.on('get', this.getAmbilightBrightness.bind(this))
             	.on('set', this.setAmbilightBrightness.bind(this));
+	*/
 
-            return [informationService, this.televisionService, this.volumeService, this.NextInputService, this.PreviousInputService, this.ambilightService, this.speakerService];
+            return [informationService, this.televisionService, this.speakerService];
         } else {
-            return [informationService, this.televisionService, this.NextInputService, this.PreviousInputService, this.volumeService];
+            return [informationService, this.televisionService, this.speakerService];
         }
     }
 };
