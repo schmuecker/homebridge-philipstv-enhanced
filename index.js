@@ -805,6 +805,48 @@ HttpStatusAccessory.prototype = {
         }.bind(this));
     },
 
+    /// Send a key
+    sendKey: function(key, callback, context) {
+        this.log("Entering %s with context: %s and target value: %s", arguments.callee.name, context, key);
+
+        var keyName = null;
+        if (key == Characteristic.RemoteKey.ARROW_UP) {
+            keyName = "CursorUp";
+        } else if (key == Characteristic.RemoteKey.ARROW_LEFT) {
+            keyName = "CursorLeft";
+        } else if (key == Characteristic.RemoteKey.ARROW_RIGHT) {
+            keyName = "CursorRight";
+        } else if (key == Characteristic.RemoteKey.ARROW_DOWN) {
+            keyName = "CursorDown";
+        } else if (key == Characteristic.RemoteKey.BACK) {
+            keyName = "Back";
+        } else if (key == Characteristic.RemoteKey.EXIT) {
+            keyName = "Exit";
+        } else if (key == Characteristic.RemoteKey.INFORMATION) {
+            keyName = "Home";
+        } else if (key == Characteristic.RemoteKey.SELECT) {
+            keyName = "Confirm";
+        } else if (key == Characteristic.RemoteKey.PLAY_PAUSE) {
+            keyName = "PlayPause";
+        } else if (key == 'VolumeUp') {
+            keyName = "VolumeUp";
+        } else if (key == 'VolumeDown') {
+            keyName = "VolumeDown";
+        }
+        if (keyName != null) {
+            url = this.input_url;
+            body = JSON.stringify({"key": keyName});
+            this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
+                if (error) {
+                    this.log('sendKey - error: ', error.message);
+                } else {
+                    this.log('sendKey - succeeded - %s', key);
+                }
+            }.bind(this));
+        }
+        callback(null, null);
+    },
+    
     /// Next input
     setNextInput: function(inputState, callback, context) {
         this.log.debug("Entering %s with context: %s and target value: %s", arguments.callee.name, context, inputState);
@@ -931,12 +973,60 @@ HttpStatusAccessory.prototype = {
             .setCharacteristic(Characteristic.Manufacturer, 'Philips')
             .setCharacteristic(Characteristic.Model, "Year " + this.model_year);
 
+
+        this.televisionService = new Service.Television();
+
+	this.televisionService
+            .setCharacteristic(Characteristic.ConfiguredName, "TV");
+  
         // POWER
-        this.switchService = new Service.Switch(this.name + " Power", '0a');
-        this.switchService
-            .getCharacteristic(Characteristic.On)
+        this.televisionService
+            .getCharacteristic(Characteristic.Active)
             .on('get', this.getPowerState.bind(this))
             .on('set', this.setPowerState.bind(this));
+
+        this.televisionService
+            .setCharacteristic(
+                 Characteristic.SleepDiscoveryMode,
+                 Characteristic.SleepDiscoveryMode.ALWAYS_DISCOVERABLE
+            );
+
+        this.televisionService
+            .getCharacteristic(Characteristic.RemoteKey)
+            .on('set', this.sendKey.bind(this));
+
+        this.speakerService = new Service.TelevisionSpeaker(this.name + " Volume", "volumeService");
+
+        this.speakerService
+            .setCharacteristic(Characteristic.Active, Characteristic.Active.ACTIVE)
+            .setCharacteristic(
+                Characteristic.VolumeControlType,
+                Characteristic.VolumeControlType.ABSOLUTE
+            );
+
+        this.speakerService
+            .getCharacteristic(Characteristic.VolumeSelector)
+            .on('set', (state, callback) => {
+            var keyName;
+            this.log('volume change over the remote control (VolumeSelector), pressed: %s', state === 1 ? 'Down' : 'Up');
+            if(state === 1) {
+                keyName = 'VolumeDown';
+            } else {
+                keyName = 'VolumeUp';
+            }
+            this.sendKey(keyName,callback,null);
+        });
+        this.speakerService
+            .getCharacteristic(Characteristic.Mute)
+            .on('get', this.getVolumeState.bind(this))
+            .on('set', this.setVolumeState.bind(this));
+
+        this.speakerService
+            .addCharacteristic(Characteristic.Volume)
+            .on('get', this.getVolumeLevel.bind(this))
+            .on('set', this.setVolumeLevel.bind(this));
+
+        this.televisionService.addLinkedService(this.speakerService);
 
         // Volume
         this.volumeService = new Service.Lightbulb(this.name + " Volume", '0b');
@@ -977,9 +1067,9 @@ HttpStatusAccessory.prototype = {
             	.on('get', this.getAmbilightBrightness.bind(this))
             	.on('set', this.setAmbilightBrightness.bind(this));
 
-            return [informationService, this.switchService, this.volumeService, this.NextInputService, this.PreviousInputService, this.ambilightService];
+            return [informationService, this.televisionService, this.volumeService, this.NextInputService, this.PreviousInputService, this.ambilightService, this.speakerService];
         } else {
-            return [informationService, this.switchService, this.NextInputService, this.PreviousInputService, this.volumeService];
+            return [informationService, this.televisionService, this.NextInputService, this.PreviousInputService, this.volumeService];
         }
     }
 };
