@@ -491,7 +491,6 @@ HttpStatusAccessory.prototype = {
 
 
         this.televisionService = new Service.Television();
-
 	    this.televisionService
             .setCharacteristic(Characteristic.ConfiguredName, "TV");
 
@@ -511,16 +510,22 @@ HttpStatusAccessory.prototype = {
             .getCharacteristic(Characteristic.RemoteKey)
             .on('set', this.sendKey.bind(this));
 
-        this.televisionService
-            .getCharacteristic(Characteristic.RemoteKey)
-            .on('set', this.sendKey.bind(Characteristic.RemoteKey.ARROW_DOWN));
+//        this.arrowService = new Service.Switch(this.name + " Arrow Down", '0a');
+//            .getCharacteristic(Characteristic.RemoteKey)
+//            .on('set', this.sendKey.bind(Characteristic.RemoteKey.ARROW_DOWN));
+//            .on('set', (state, callback) => {
+//            					this.setVolumeSwitch(state, callback, true);
+//            				});
 
         // Next input
-        this.NextInputService = new Service.Switch(this.name + " Next input", '0d');
+        this.NextInputService = new Service.Switch(this.name + " Next input", '0b');
         this.NextInputService
             .getCharacteristic(Characteristic.On)
             .on('get', this.getNextInput.bind(this))
-            .on('set', this.setNextInput.bind(this));
+            //.on('set', this.setNextInput.bind(this));
+            .on('set', (state, callback) => {
+            					this.setNextInput(state, callback, true);
+            				});
 
         // Previous input
         this.PreviousInputService = new Service.Switch(this.name + " Previous input", '0c');
