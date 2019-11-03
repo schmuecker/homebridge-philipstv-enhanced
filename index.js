@@ -7,7 +7,7 @@ var wol = require('wake_on_lan');
 module.exports = function(homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
-    homebridge.registerAccessory("homebridge-philipstv-enhanced-bq2", "PhilipsTV", HttpStatusAccessory);
+    homebridge.registerAccessory("homebridge-philipstv-enhanced", "PhilipsTV", HttpStatusAccessory);
 }
 
 function HttpStatusAccessory(log, config) {
@@ -24,6 +24,8 @@ function HttpStatusAccessory(log, config) {
     this.set_attempt = 0;
     this.has_ambilight = config["has_ambilight"] || false;
     this.has_ssl = config["has_ssl"] || false;
+	this.model_name = config["model_name"];
+	this.model_version = config["model_version"];
 
     // CREDENTIALS FOR API
     this.username = config["username"] || "";
@@ -51,8 +53,8 @@ function HttpStatusAccessory(log, config) {
     }
 
     // CONNECTION SETTINGS
-    this.protocol = this.has_ssl ? "https" : "http";
-    this.portno = this.has_ssl ? "1926" : "1925";
+    this.protocol = this.has_ssl ? "https" : "https";
+    this.portno = this.has_ssl ? "1926" : "1926";
     this.need_authentication = this.username != '' ? 1 : 0;
 
     this.log("Model year: " + this.model_year_nr);
@@ -63,12 +65,11 @@ function HttpStatusAccessory(log, config) {
     this.state_ambilightLevel = 0;
     this.state_volume = false;
     this.state_volumeLevel = 0;
-    this.restUrl = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version
 
     // Define URL & JSON Payload for Actions
 
     // POWER
-    this.power_url = this.restUrl + "/powerstate";
+    this.power_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/powerstate";
     this.power_on_body = JSON.stringify({
         "powerstate": "On"
     });
@@ -77,24 +78,26 @@ function HttpStatusAccessory(log, config) {
     });
 
     // Volume
-    this.audio_url = this.restUrl + "/audio/volume";
+    this.audio_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/audio/volume";
     this.audio_unmute_body = JSON.stringify({
-        "muted": false
+        "muted": false,
+        "current": that.state_volumeLevel
     });
     this.audio_mute_body = JSON.stringify({
-        "muted": true
+        "muted": true,
+        "current": that.state_volumeLevel
     });
 
     // INPUT
-    this.input_url = this.restUrl + "/input/key";
+    this.input_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/input/key";
 
     // AMBILIGHT
-    this.ambilight_status_url = this.restUrl + "/menuitems/settings/current";
+    this.ambilight_status_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/menuitems/settings/current";
 	this.ambilight_brightness_body = JSON.stringify({"nodes":[{"nodeid":200}]});
 	this.ambilight_mode_body = JSON.stringify({"nodes":[{"nodeid":100}]});
-	
-    this.ambilight_config_url = this.restUrl + "/menuitems/settings/update";
-    this.ambilight_power_on_body = JSON.stringify({"value":{"Nodeid":100,"Controllable":true,"Available":true,"data":{"activenode_id":120}}}); // Follow Video 
+
+    this.ambilight_config_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/menuitems/settings/update";
+    this.ambilight_power_on_body = JSON.stringify({"value":{"Nodeid":100,"Controllable":true,"Available":true,"data":{"activenode_id":120}}}); // Follow Video
     this.ambilight_power_off_body = JSON.stringify({"value":{"Nodeid":100,"Controllable":true,"Available":true,"data":{"activenode_id":110}}}); // Off
 
     // POLLING ENABLED?
@@ -174,7 +177,7 @@ function HttpStatusAccessory(log, config) {
                     that.ambilightService.getCharacteristic(Characteristic.On).setValue(that.state_ambilight, null, "statuspoll");
                 }
             });
-            
+
             var statusemitter_ambilight_brightness = pollingtoevent(function(done) {
                 that.getAmbilightBrightness(function(error, response) {
                     done(error, response, that.set_attempt);
@@ -190,9 +193,9 @@ function HttpStatusAccessory(log, config) {
                 if (that.ambilightService) {
                     that.ambilightService.getCharacteristic(Characteristic.Brightness).setValue(that.state_ambilight_brightness, null, "statuspoll");
                 }
-            });            
-            
-            
+            });
+
+
         }
     }
 }
@@ -240,7 +243,7 @@ HttpStatusAccessory.prototype = {
                 sendImmediately: false
             }
         }
-        
+
         req = request(options,
             function(error, response, body) {
                 callback(error, response, body)
@@ -337,7 +340,7 @@ HttpStatusAccessory.prototype = {
 						}
 					});
 				}.bind(this));
-			} 
+			}
         } else {
             body = this.power_off_body;
             this.log("setPowerState - Will power off");
@@ -366,8 +369,8 @@ HttpStatusAccessory.prototype = {
     getPowerState: function(callback, context) {
         var that = this;
         var url = this.power_url;
-        
-        
+
+        that.log("getPowerState with : %s", url);
    		this.log.debug("Entering %s with context: %s and current value: %s", arguments.callee.name, context, this.state_power);
         //if context is statuspoll, then we need to request the actual value else we return the cached value
 		if ((!context || context != "statuspoll") && this.switchHandling == "poll") {
@@ -379,6 +382,7 @@ HttpStatusAccessory.prototype = {
             var tResp = that.state_power;
             var fctname = "getPowerState";
             if (error) {
+				that.log("getPowerState with : %s", url);
                 that.log('%s - ERROR: %s', fctname, error.message);
                 that.state_power = false;
             } else {
@@ -392,7 +396,9 @@ HttpStatusAccessory.prototype = {
 		                    that.log("%s - Could not parse message: '%s', not updating state", fctname, responseBody);
 						}
                     } catch (e) {
+						that.log("getPowerState with : %s", url);
                         that.log("%s - Got non JSON answer - not updating state: '%s'", fctname, responseBody);
+			responseBodyParsed = false;
                     }
                 }
                 if (that.state_power != tResp) {
@@ -468,7 +474,7 @@ HttpStatusAccessory.prototype = {
         var that = this;
         var url = this.ambilight_status_url;
         var body = this.ambilight_mode_body;
-
+		that.log("getAmbilightState with : %s", url);
 		this.log.debug("Entering %s with context: %s and current value: %s", arguments.callee.name, context, this.state_ambilight);
         //if context is statuspoll, then we need to request the actual value
 		if ((!context || context != "statuspoll") && this.switchHandling == "poll") {
@@ -484,6 +490,7 @@ HttpStatusAccessory.prototype = {
             var tResp = that.state_ambilight;
             var fctname = "getAmbilightState";
             if (error) {
+				that.log("getAmbilightState with : %s", url);
                 that.log('%s - ERROR: %s', fctname, error.message);
             } else {
                 if (responseBody) {
@@ -497,7 +504,9 @@ HttpStatusAccessory.prototype = {
 		                    that.log("%s - Could not parse message: '%s', not updating state", fctname, responseBody);
 						}
 					} catch (e) {
+						that.log("getAmbilightState with : %s", url);
                         that.log("%s - Got non JSON answer - not updating state: '%s'", fctname, responseBody);
+			responseBodyParsed = false;
                     }
                 }
                 if (that.state_ambilight != tResp) {
@@ -563,7 +572,7 @@ HttpStatusAccessory.prototype = {
         var that = this;
         var url = this.ambilight_status_url;
         var body = this.ambilight_brightness_body;
-
+		that.log("getAmbilightBrightness with : %s", url);
 		this.log.debug("Entering %s with context: %s and current value: %s", arguments.callee.name, context, this.state_ambilightLevel);
         //if context is statuspoll, then we need to request the actual value
 		if ((!context || context != "statuspoll") && this.switchHandling == "poll") {
@@ -579,6 +588,7 @@ HttpStatusAccessory.prototype = {
             var tResp = that.state_ambilightLevel;
             var fctname = "getAmbilightBrightness";
             if (error) {
+				that.log("getAmbilightBrightness with : %s", url);
                 that.log('%s - ERROR: %s', fctname, error.message);
             } else {
                 if (responseBody) {
@@ -592,7 +602,9 @@ HttpStatusAccessory.prototype = {
 		                    that.log("%s - Could not parse message: '%s', not updating level", fctname, responseBody);
 						}
 					} catch (e) {
+						that.log("getAmbilightBrightness with : %s", url);
                         that.log("%s - Got non JSON answer - not updating level: '%s'", fctname, responseBody);
+			responseBodyParsed = false;
                     }
                 }
                 if (that.state_ambilightLevel != tResp) {
@@ -613,16 +625,19 @@ HttpStatusAccessory.prototype = {
             if (error) {
                 if (nCount > 0) {
                     that.log('setVolumeStateLoop - attempt, attempt id: ', nCount - 1);
+                    that.log("Sent with : %s", url);
                     that.setVolumeStateLoop(nCount - 1, url, body, volumeState, function(err, state) {
                         callback(err, state);
                     });
                 } else {
                     that.log('setVolumeStateLoop - failed: %s', error.message);
+                    that.log("Sent with : %s", url);
                     volumeState = false;
                     callback(new Error("HTTP attempt failed"), volumeState);
                 }
             } else {
                 that.log('setVolumeStateLoop - succeeded - current state: %s', volumeState);
+                that.log("Sent with : %s", url);
                 callback(null, volumeState);
             }
         });
@@ -634,6 +649,8 @@ HttpStatusAccessory.prototype = {
         var that = this;
 
 		this.log.debug("Entering %s with context: %s and target value: %s", arguments.callee.name, context, volumeState);
+        that.log("Sent with : %s", url);
+        that.log("Sent with body : %s", body);
 
         //if context is statuspoll, then we need to ensure that we do not set the actual value
         if (context && context == "statuspoll") {
@@ -646,9 +663,11 @@ HttpStatusAccessory.prototype = {
         if (volumeState) {
             body = this.audio_unmute_body;
             this.log("setVolumeState - setting state to on");
+            that.log("Sent with body : %s", body);
         } else {
             body = this.audio_mute_body;
             this.log("setVolumeState - setting state to off");
+            that.log("Sent with body : %s", body);
         }
 
         that.setVolumeStateLoop(0, url, body, volumeState, function(error, state) {
@@ -656,6 +675,8 @@ HttpStatusAccessory.prototype = {
             if (error) {
                 that.state_volume = false;
                 that.log("setVolumeState - ERROR: %s", error);
+                that.log("Sent with : %s", url);
+                that.log("Sent with body : %s", body);
                 if (that.volumeService) {
                     that.volumeService.getCharacteristic(Characteristic.On).setValue(that.state_volume, null, "statuspoll");
                 }
@@ -672,16 +693,22 @@ HttpStatusAccessory.prototype = {
             if (error) {
                 if (nCount > 0) {
                     that.log('setVolumeLevelLoop - attempt, attempt id: ', nCount - 1);
+                    that.log("Sent with : %s", url);
+                    that.log("Sent with body : %s", body);
                     that.setVolumeLevelLoop(nCount - 1, url, body, volumeLevel, function(err, state) {
                         callback(err, state);
                     });
                 } else {
                     that.log('setVolumeLevelLoop - failed: %s', error.message);
+                    that.log("Sent with : %s", url);
+                    that.log("Sent with body : %s", body);
                     volumeLevel = false;
                     callback(new Error("HTTP attempt failed"), volumeLevel);
                 }
             } else {
                 that.log('setVolumeLevelLoop - succeeded - current level: %s', volumeLevel);
+                that.log("Sent with : %s", url);
+                that.log("Sent with body : %s", body);
                 callback(null, volumeLevel);
             }
         });
@@ -690,7 +717,7 @@ HttpStatusAccessory.prototype = {
     setVolumeLevel: function(volumeLevel, callback, context) {
         var TV_Adjusted_volumeLevel = Math.round(volumeLevel / 4);
         var url = this.audio_url;
-        var body = JSON.stringify({"current": TV_Adjusted_volumeLevel});
+        var body = JSON.stringify({"muted": "false", "current": TV_Adjusted_volumeLevel});
         var that = this;
 
 		this.log.debug("Entering %s with context: %s and target value: %s", arguments.callee.name, context, volumeLevel);
@@ -709,6 +736,7 @@ HttpStatusAccessory.prototype = {
             if (error) {
                 that.state_volumeLevel = false;
                 that.log("setVolumeState - ERROR: %s", error);
+                that.log("Sent with body : %s", body);
                 if (that.volumeService) {
                     that.volumeService.getCharacteristic(Characteristic.On).setValue(that.state_volumeLevel, null, "statuspoll");
                 }
@@ -720,7 +748,7 @@ HttpStatusAccessory.prototype = {
     getVolumeState: function(callback, context) {
         var that = this;
         var url = this.audio_url;
-
+   		that.log("getVolumeState with : %s", url);
    		this.log.debug("Entering %s with context: %s and current state: %s", arguments.callee.name, context, this.state_volume);
 
         //if context is statuspoll, then we need to request the actual value
@@ -732,11 +760,12 @@ HttpStatusAccessory.prototype = {
                 callback(null, false);
                 return;
         }
-        
+
         this.httpRequest(url, "", "GET", this.need_authentication, function(error, response, responseBody) {
             var tResp = that.state_volume;
             var fctname = "getVolumeState";
             if (error) {
+				that.log("getVolumeState with : %s", url);
                 that.log('%s - ERROR: %s', fctname, error.message);
             } else {
                 if (responseBody) {
@@ -750,7 +779,9 @@ HttpStatusAccessory.prototype = {
 		                    that.log("%s - Could not parse message: '%s', not updating state", fctname, responseBody);
 						}
 					} catch (e) {
+						that.log("getVolumeState with : %s", url);
                         that.log("%s - Got non JSON answer - not updating state: '%s'", fctname, responseBody);
+			responseBodyParsed = false;
                     }
                 }
                 if (that.state_volume != tResp) {
@@ -765,7 +796,7 @@ HttpStatusAccessory.prototype = {
     getVolumeLevel: function(callback, context) {
         var that = this;
         var url = this.audio_url;
-
+   		that.log("getVolumeLevel with : %s", this.audio_url);
    		this.log.debug("Entering %s with context: %s and current value: %s", arguments.callee.name, context, this.state_volumeLevel);
         //if context is statuspoll, then we need to request the actual value
 		if ((!context || context != "statuspoll") && this.switchHandling == "poll") {
@@ -781,6 +812,7 @@ HttpStatusAccessory.prototype = {
             var tResp = that.state_volumeLevel;
             var fctname = "getVolumeLevel";
             if (error) {
+				that.log("getVolumeLevel with : %s", url);
                 that.log('%s - ERROR: %s', fctname, error.message);
             } else {
                 if (responseBody) {
@@ -794,7 +826,9 @@ HttpStatusAccessory.prototype = {
 		                    that.log("%s - Could not parse message: '%s', not updating level", fctname, responseBody);
 						}
 					 } catch (e) {
+						that.log("getVolumeLevel with : %s", url);
                         that.log("%s - Got non JSON answer - not updating level: '%s'", fctname, responseBody);
+			responseBodyParsed = false;
                     }
                 }
 				if (that.state_volumeLevel != tResp) {
@@ -847,7 +881,7 @@ HttpStatusAccessory.prototype = {
         }
         callback(null, null);
     },
-    
+
     /// Next input
     setNextInput: function(inputState, callback, context) {
         this.log.debug("Entering %s with context: %s and target value: %s", arguments.callee.name, context, inputState);
@@ -934,7 +968,7 @@ HttpStatusAccessory.prototype = {
 											this.log('Right - succeeded - current state: %s', inputState);
 											setTimeout(function() {
 												body = JSON.stringify({"key": "Confirm"});
-												
+
 												this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
 													if (error) {
 										                this.log('setPreviousInput - error: ', error.message);
@@ -972,14 +1006,15 @@ HttpStatusAccessory.prototype = {
         informationService
             .setCharacteristic(Characteristic.Name, this.name)
             .setCharacteristic(Characteristic.Manufacturer, 'Philips')
-            .setCharacteristic(Characteristic.Model, "Year " + this.model_year);
+            .setCharacteristic(Characteristic.Model, this.model_name)
+			.setCharacteristic(Characteristic.FirmwareRevision, this.model_version);
 
 
         this.televisionService = new Service.Television();
 
 	this.televisionService
             .setCharacteristic(Characteristic.ConfiguredName, "TV");
-  
+
         // POWER
         this.televisionService
             .getCharacteristic(Characteristic.Active)
