@@ -4,7 +4,7 @@ Homebridge module for Philips TV (with JointSpace enabled) with Power on/off, So
 # Description
 
 This plugin is a fork of [homebridge-philipstv-x](https://www.npmjs.com/package/homebridge-philipstv-x) with additional support for Sound control, Ambilight brightness control and input selection control.
-It has been modified to work on a 43PUS6753 TV (2018 model without Android) and may not work on older one. Code may need ajustement for Ambilight to work on other 2018 models
+It has been modified to work on a 65OLED873/12 TV (2018 model without Android) and may not work on older one. Code may need ajustement for Ambilight to work on other 2018 models
 
 # Installation
 

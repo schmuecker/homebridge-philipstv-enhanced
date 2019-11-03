@@ -884,51 +884,53 @@ HttpStatusAccessory.prototype = {
     },
 
     /// Next input
-    setNextInput: function(inputState, callback, context) {
+    setNextInput: function(inputState, callback, context)
+    {
         this.log.debug("Entering %s with context: %s and target value: %s", arguments.callee.name, context, inputState);
 
         url = this.input_url;
         body = JSON.stringify({"key": "Source"});
-        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
-            if (error) {
+        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody)
+        {
+            if (error)
+            {
                 this.log('setNextInput - error: ', error.message);
-            } else {
-                	this.log('Source - succeeded - current state: %s', inputState);
+            }
+            else
+            {
+                this.log('Source - succeeded - current state: %s', inputState);
 
-					setTimeout(function () {
-					body = JSON.stringify({"key": "CursorDown"});
+                setTimeout(function ()
+                {
+                    body = JSON.stringify({"key": "CursorDown"});
 
-					this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
-						if (error) {
-           				     this.log('setNextInput - error: ', error.message);
-						} else {
-								this.log('Down - succeeded - current state: %s', inputState);
-								setTimeout(function () {
-								body = JSON.stringify({"key": "CursorRight"});
+                    this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody)
+                    {
+                        if (error)
+                        {
+                             this.log('setNextInput - error: ', error.message);
+                        }
+                        else
+                        {
+                            this.log('Down - succeeded - current state: %s', inputState);
+                            setTimeout(function()
+                            {
+                                body = JSON.stringify({"key": "Confirm"});
 
-								this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
-									if (error) {
-               							 this.log('setNextInput - error: ', error.message);
-									} else {
-											this.log('Right - succeeded - current state: %s', inputState);
-											setTimeout(function() {
-												body = JSON.stringify({"key": "Confirm"});
-
-												this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
-													if (error) {
-            										    this.log('setNextInput - error: ', error.message);
-													} else {
-															this.log.info("Source change completed");
-													}
-												}.bind(this));
-											}.bind(this), 500);
-									}
-								}.bind(this));
-
-							}.bind(this), 500);
-						}
-					}.bind(this));
-
+                                this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody)
+                                {
+                                    if (error)
+                                    {
+                                        this.log('setNextInput - error: ', error.message);
+                                    }
+                                    else
+                                    {
+                                        this.log.info("Source change completed");
+                                    }
+                                }.bind(this));
+                            }.bind(this), 500);
+                        }
+                    }.bind(this));
 				}.bind(this), 500);
             }
         }.bind(this));
