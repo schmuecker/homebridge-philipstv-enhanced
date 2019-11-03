@@ -1,6 +1,6 @@
 {
   "name": "homebridge-philipstv-enhanced-bq2",
-  "version": "0.1.1",
+  "version": "0.0.1",
   "description": "Homebridge module for the Philips TV (with JointSpace enabled) and ready for 2018 models",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jebabin/homebridge-philipstv-enhanced.git"
+    "url": "git+https://github.com/blickfangq2/homebridge-philipstv-enhanced.git"
   },
   "dependencies": {
     "polling-to-event": "^2.0.2",
@@ -25,10 +25,10 @@
     "node": ">=0.12.0",
     "homebridge": ">=0.2.0"
   },
-  "author": "jebabin",
+  "author": "blickfangQ2",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jebabin/homebridge-philipstv-enhanced/issues"
+    "url": "https://github.com/blickfangq2/homebridge-philipstv-enhanced/issues"
   },
-  "homepage": "https://github.com/jebabin/homebridge-philipstv-enhanced#readme"
+  "homepage": "https://github.com/blickfangq2/homebridge-philipstv-enhanced#readme"
 }
