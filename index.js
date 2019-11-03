@@ -22,7 +22,6 @@ function HttpStatusAccessory(log, config) {
     this.wol_url = config["wol_url"] || "";
     this.model_year_nr = parseInt(this.model_year);
     this.set_attempt = 0;
-    this.has_ambilight = config["has_ambilight"] || false;
     this.has_ssl = config["has_ssl"] || false;
 	this.model_name = config["model_name"];
 	this.model_version = config["model_version"];
