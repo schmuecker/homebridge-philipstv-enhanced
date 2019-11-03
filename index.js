@@ -10,6 +10,7 @@ module.exports = function(homebridge) {
     homebridge.registerAccessory("homebridge-philipstv-enhanced", "PhilipsTV", HttpStatusAccessory);
 }
 
+//Test123
 function HttpStatusAccessory(log, config) {
     this.log = log;
     var that = this;
