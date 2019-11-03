@@ -1078,7 +1078,7 @@ HttpStatusAccessory.prototype = {
             .getCharacteristic(Characteristic.Brightness)
             .on('get', this.getVolumeLevel.bind(this))
             .on('set', this.setVolumeLevel.bind(this));
-
+*/
         // Previous input
         this.PreviousInputService = new Service.Switch(this.name + " Previous input", '0c');
         this.PreviousInputService
@@ -1093,6 +1093,7 @@ HttpStatusAccessory.prototype = {
             .on('get', this.getNextInput.bind(this))
             .on('set', this.setNextInput.bind(this));
 
+/*
         if (this.has_ambilight) {
             // AMBILIGHT
             this.ambilightService = new Service.Lightbulb(this.name + " Ambilight", '0e');
@@ -1107,7 +1108,7 @@ HttpStatusAccessory.prototype = {
             	.on('set', this.setAmbilightBrightness.bind(this));
 	*/
 
-            return [informationService, this.televisionService, this.speakerService];
+            return [informationService, this.televisionService, this.speakerService, this.PreviousInputService, this.NextInputService];
 //        } else {
 //            return [informationService, this.televisionService, this.speakerService];
 //        }
