@@ -513,7 +513,7 @@ HttpStatusAccessory.prototype = {
             .on('set', this.sendKey.bind(this));
 
         // Previous input
-        this.PreviousInputService = new Service.switch(this.name + " Previous input", '0c');
+        this.PreviousInputService = new Service.Switch(this.name + " Previous input", '0c');
         this.PreviousInputService
             .getCharacteristic(Characteristic.On)
             .on('get', this.getPreviousInput.bind(this))
