@@ -892,23 +892,23 @@ HttpStatusAccessory.prototype = {
 
         //Enter Source Menu
         body = JSON.stringify({"key": "Source"});
-        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody).bind(this));
+        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody);
 
         //Wait 1 second
         setTimeout(function(){this.log('wait 1');}, 1000);
 
         //Key Down
         body = JSON.stringify({"key": "CursorDown"});
-        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody).bind(this));
+        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody);
 
         //Wait 1 second
         setTimeout(function(){this.log('wait 2');}, 1000);
 
         //Key Confirm
         body = JSON.stringify({"key": "Confirm"});
-        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody).bind(this));
+        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody);
         callback(null, null);
-    }
+    },
 /*    /// Next input
     setNextInput: function(inputState, callback, context)
     {
