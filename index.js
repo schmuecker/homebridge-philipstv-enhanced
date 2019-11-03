@@ -1008,7 +1008,7 @@ HttpStatusAccessory.prototype = {
             .setCharacteristic(Characteristic.Name, this.name)
             .setCharacteristic(Characteristic.Manufacturer, 'Philips')
             .setCharacteristic(Characteristic.Model, this.model_name)
-			.setCharacteristic(Characteristic.FirmwareRevision, this.model_version);
+			.setCharacteristic(Characteristic.FirmwareRevision, this.model_version)
 			.setCharacteristic(Characteristic.SerialNumber, this.model_serial_no);
 
 
