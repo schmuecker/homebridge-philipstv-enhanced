@@ -26,6 +26,7 @@ function HttpStatusAccessory(log, config) {
     this.has_ssl = config["has_ssl"] || false;
 	this.model_name = config["model_name"];
 	this.model_version = config["model_version"];
+	this.model_serial_no = config["model_serial_no"];
 
     // CREDENTIALS FOR API
     this.username = config["username"] || "";
@@ -1008,6 +1009,7 @@ HttpStatusAccessory.prototype = {
             .setCharacteristic(Characteristic.Manufacturer, 'Philips')
             .setCharacteristic(Characteristic.Model, this.model_name)
 			.setCharacteristic(Characteristic.FirmwareRevision, this.model_version);
+			.setCharacteristic(Characteristic.SerialNumber, this.model_serial_no);
 
 
         this.televisionService = new Service.Television();
