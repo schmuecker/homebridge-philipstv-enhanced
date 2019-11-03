@@ -883,7 +883,33 @@ HttpStatusAccessory.prototype = {
         callback(null, null);
     },
 
-    /// Next input
+
+   /// Next input
+    setNextInput: function(inputState, callback, context)
+    {
+        this.log('setNextInput start', inputState);
+        url = this.input_url;
+
+        //Enter Source Menu
+        body = JSON.stringify({"key": "Source"});
+        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody).bind(this));
+
+        //Wait 1 second
+        setTimeout(function(){this.log('wait 1');}, 1000);
+
+        //Key Down
+        body = JSON.stringify({"key": "CursorDown"});
+        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody).bind(this));
+
+        //Wait 1 second
+        setTimeout(function(){this.log('wait 2');}, 1000);
+
+        //Key Confirm
+        body = JSON.stringify({"key": "Confirm"});
+        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody).bind(this));
+        callback(null, null);
+    }
+/*    /// Next input
     setNextInput: function(inputState, callback, context)
     {
         this.log.debug("Entering %s with context: %s and target value: %s", arguments.callee.name, context, inputState);
@@ -928,14 +954,14 @@ HttpStatusAccessory.prototype = {
                                         this.log.info("Source change completed");
                                     }
                                 }.bind(this));
-                            }.bind(this), 500);
+                            }.bind(this), 1000);
                         }
                     }.bind(this));
-				}.bind(this), 500);
+				}.bind(this), 1000);
             }
         }.bind(this));
         callback(null, null);
-    },
+    },*/
 
     getNextInput: function(callback, context) {
         callback(null, null);
@@ -964,7 +990,8 @@ HttpStatusAccessory.prototype = {
 								setTimeout(function () {
 								body = JSON.stringify({"key": "CursorLeft"});
 
-								this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
+								this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody)
+								{
 									if (error) {
 						                this.log('setPreviousInput - error: ', error.message);
 									} else {
