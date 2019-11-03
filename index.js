@@ -7,10 +7,9 @@ var wol = require('wake_on_lan');
 module.exports = function(homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
-    homebridge.registerAccessory("homebridge-philipstv-enhanced", "PhilipsTV", HttpStatusAccessory);
+    homebridge.registerAccessory("homebridge-philipstv-enhanced-bq2", "PhilipsTV", HttpStatusAccessory);
 }
 
-//Test123 - 456
 function HttpStatusAccessory(log, config) {
     this.log = log;
     var that = this;
@@ -64,11 +63,12 @@ function HttpStatusAccessory(log, config) {
     this.state_ambilightLevel = 0;
     this.state_volume = false;
     this.state_volumeLevel = 0;
+    this.restUrl = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version
 
     // Define URL & JSON Payload for Actions
 
     // POWER
-    this.power_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/powerstate";
+    this.power_url = this.restUrl + "/powerstate";
     this.power_on_body = JSON.stringify({
         "powerstate": "On"
     });
@@ -77,7 +77,7 @@ function HttpStatusAccessory(log, config) {
     });
 
     // Volume
-    this.audio_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/audio/volume";
+    this.audio_url = this.restUrl + "/audio/volume";
     this.audio_unmute_body = JSON.stringify({
         "muted": false
     });
@@ -86,14 +86,14 @@ function HttpStatusAccessory(log, config) {
     });
 
     // INPUT
-    this.input_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/input/key";
+    this.input_url = this.restUrl + "/input/key";
 
     // AMBILIGHT
-    this.ambilight_status_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/menuitems/settings/current";
+    this.ambilight_status_url = this.restUrl + "/menuitems/settings/current";
 	this.ambilight_brightness_body = JSON.stringify({"nodes":[{"nodeid":200}]});
 	this.ambilight_mode_body = JSON.stringify({"nodes":[{"nodeid":100}]});
 	
-    this.ambilight_config_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/menuitems/settings/update";
+    this.ambilight_config_url = this.restUrl + "/menuitems/settings/update";
     this.ambilight_power_on_body = JSON.stringify({"value":{"Nodeid":100,"Controllable":true,"Available":true,"data":{"activenode_id":120}}}); // Follow Video 
     this.ambilight_power_off_body = JSON.stringify({"value":{"Nodeid":100,"Controllable":true,"Available":true,"data":{"activenode_id":110}}}); // Off
 
