@@ -928,10 +928,10 @@ HttpStatusAccessory.prototype = {
                                         this.log.info("Source change completed");
                                     }
                                 }.bind(this));
-                            }.bind(this), 1500);
+                            }.bind(this), 1000);
                         }
                     }.bind(this));
-				}.bind(this), 1500);
+				}.bind(this), 1000);
             }
         }.bind(this));
         callback(null, null);
@@ -941,54 +941,55 @@ HttpStatusAccessory.prototype = {
         callback(null, null);
     },
 
-    /// Previous input
-    setPreviousInput: function(inputState, callback, context) {
+   /// Previous input
+    setPreviousInput: function(inputState, callback, context)
+    {
         this.log.debug("Entering %s with context: %s and target value: %s", arguments.callee.name, context, inputState);
 
         url = this.input_url;
         body = JSON.stringify({"key": "Source"});
-        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
-            if (error) {
+        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody)
+        {
+            if (error)
+            {
                 this.log('setPreviousInput - error: ', error.message);
-            } else {
-                	this.log('Source - succeeded - current state: %s', inputState);
+            }
+            else
+            {
+                this.log('Source - succeeded - current state: %s', inputState);
 
-					setTimeout(function () {
-					body = JSON.stringify({"key": "CursorDown"});
+                setTimeout(function ()
+                {
+                    body = JSON.stringify({"key": "CursorUp"});
 
-					this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
-						if (error) {
-			                this.log('setPreviousInput - error: ', error.message);
-						} else {
-								this.log('Down - succeeded - current state: %s', inputState);
-								setTimeout(function () {
-								body = JSON.stringify({"key": "CursorLeft"});
+                    this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody)
+                    {
+                        if (error)
+                        {
+                             this.log('setPreviousInput - error: ', error.message);
+                        }
+                        else
+                        {
+                            this.log('Down - succeeded - current state: %s', inputState);
+                            setTimeout(function()
+                            {
+                                body = JSON.stringify({"key": "Confirm"});
 
-								this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody)
-								{
-									if (error) {
-						                this.log('setPreviousInput - error: ', error.message);
-									} else {
-											this.log('Right - succeeded - current state: %s', inputState);
-											setTimeout(function() {
-												body = JSON.stringify({"key": "Confirm"});
-
-												this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
-													if (error) {
-										                this.log('setPreviousInput - error: ', error.message);
-													} else {
-															this.log.info("Source change completed");
-													}
-												}.bind(this));
-											}.bind(this), 500);
-									}
-								}.bind(this));
-
-							}.bind(this), 500);
-						}
-					}.bind(this));
-
-				}.bind(this), 500);
+                                this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody)
+                                {
+                                    if (error)
+                                    {
+                                        this.log('setPreviousInput - error: ', error.message);
+                                    }
+                                    else
+                                    {
+                                        this.log.info("Source change completed");
+                                    }
+                                }.bind(this));
+                            }.bind(this), 1000);
+                        }
+                    }.bind(this));
+				}.bind(this), 1000);
             }
         }.bind(this));
         callback(null, null);
