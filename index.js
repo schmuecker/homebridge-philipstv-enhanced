@@ -511,12 +511,9 @@ HttpStatusAccessory.prototype = {
             .getCharacteristic(Characteristic.RemoteKey)
             .on('set', this.sendKey.bind(this));
 
-        // Previous input
-        this.PreviousInputService = new Service.Switch(this.name + " Previous input", '0c');
-        this.PreviousInputService
-            .getCharacteristic(Characteristic.On)
-            .on('get', this.getPreviousInput.bind(this))
-            .on('set', this.setPreviousInput.bind(this));
+        this.televisionService
+            .getCharacteristic(Characteristic.RemoteKey)
+            .on('set', this.sendKey.bind(Characteristic.RemoteKey.ARROW_DOWN));
 
         // Next input
         this.NextInputService = new Service.Switch(this.name + " Next input", '0d');
@@ -525,6 +522,14 @@ HttpStatusAccessory.prototype = {
             .on('get', this.getNextInput.bind(this))
             .on('set', this.setNextInput.bind(this));
 
-        return [informationService, this.televisionService, this.PreviousInputService, this.NextInputService];
+        // Previous input
+        this.PreviousInputService = new Service.Switch(this.name + " Previous input", '0c');
+        this.PreviousInputService
+            .getCharacteristic(Characteristic.On)
+            .on('get', this.getPreviousInput.bind(this))
+            .on('set', this.setPreviousInput.bind(this));
+
+
+        return [informationService, this.televisionService, this.NextInputService, this.PreviousInputService];
     }
 };
