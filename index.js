@@ -510,21 +510,27 @@ HttpStatusAccessory.prototype = {
             .getCharacteristic(Characteristic.RemoteKey)
             .on('set', this.sendKey.bind(this));
 
-        // Next input
-        this.NextInputService = new Service.Switch(this.name + " Next input", '0b');
-        this.NextInputService
+        this.switchService = new Service.Switch(this.name);
+        this.switchService
             .getCharacteristic(Characteristic.On)
-            .on('get', this.getNextInput.bind(this))
-            .on('set', this.setNextInput.bind(this));
+            .on('get', this.getPowerState.bind(this))
+            .on('set', this.setPowerState.bind(this));
 
-        // Previous input
-        this.PreviousInputService = new Service.Switch(this.name + " Previous input", '0c');
-        this.PreviousInputService
-            .getCharacteristic(Characteristic.On)
-            .on('get', this.getPreviousInput.bind(this))
-            .on('set', this.setPreviousInput.bind(this));
+        // // Next input
+        // this.NextInputService = new Service.Switch(this.name + " Next input", '0b');
+        // this.NextInputService
+        //     .getCharacteristic(Characteristic.On)
+        //     .on('get', this.getNextInput.bind(this))
+        //     .on('set', this.setNextInput.bind(this));
+
+        // // Previous input
+        // this.PreviousInputService = new Service.Switch(this.name + " Previous input", '0c');
+        // this.PreviousInputService
+        //     .getCharacteristic(Characteristic.On)
+        //     .on('get', this.getPreviousInput.bind(this))
+        //     .on('set', this.setPreviousInput.bind(this));
 
 
-        return [informationService, this.televisionService, this.NextInputService, this.PreviousInputService];
+        return [informationService, this.televisionService, this.switchService];
     }
 };

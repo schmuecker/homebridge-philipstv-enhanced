@@ -1,14 +1,14 @@
 {
-  "name": "homebridge-philipstv-enhanced-bq2",
-  "version": "0.0.17",
-  "description": "Homebridge module for the Philips TV (with JointSpace enabled) and ready for 2018 models",
+  "name": "homebridge-philipstv-knitter",
+  "version": "0.0.1",
+  "description": "Homebridge module for the Philips TV 49PUS7101 & 75PUS7354",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blickfangq2/homebridge-philipstv-enhanced.git"
+    "url": "git+https://github.com/konradknitter/homebridge-philipstv-enhanced.git"
   },
   "dependencies": {
     "polling-to-event": "^2.0.2",
@@ -25,10 +25,10 @@
     "node": ">=0.12.0",
     "homebridge": ">=0.2.0"
   },
-  "author": "blickfangQ2",
+  "author": "konradknitter",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/blickfangq2/homebridge-philipstv-enhanced/issues"
+    "url": "https://github.com/konradknitter/homebridge-philipstv-enhanced/issues"
   },
-  "homepage": "https://github.com/blickfangq2/homebridge-philipstv-enhanced#readme"
+  "homepage": "https://github.com/konradknitter/homebridge-philipstv-enhanced#readme"
 }
