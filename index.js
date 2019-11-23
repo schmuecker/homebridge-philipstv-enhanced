@@ -543,7 +543,7 @@ HttpStatusAccessory.prototype = {
 		}
         that.httpRequest(this.status_url_ambilight, "", "GET", this.need_authentication, function(error, response, responseBody) 
         {
-			var powerstate = 0;
+			var powerState = 0;
 			if (!error) {
 				if (responseBody) {
 					var responseBodyParsed = JSON.parse(responseBody);
@@ -579,7 +579,7 @@ HttpStatusAccessory.prototype = {
 
         this.televisionService = new Service.Television();
 	    this.televisionService
-            .setCharacteristic(Characteristic.ConfiguredName, "TV " + config["name"]);
+            .setCharacteristic(Characteristic.ConfiguredName, "TV " + this.name);
 
         // POWER
         // this.televisionService
@@ -616,8 +616,14 @@ HttpStatusAccessory.prototype = {
         //     .getCharacteristic(Characteristic.On)
         //     .on('get', this.getPreviousInput.bind(this))
         //     .on('set', this.setPreviousInput.bind(this));
+        
+        // AMBILIGHT
+        this.ambilightService = new Service.Lightbulb(this.name + " Ambilight");
+        this.ambilightService
+            .getCharacteristic(Characteristic.On)
+            .on('get', this.getAmbilightState.bind(this))
+            .on('set', this.setAmbilightState.bind(this));
 
-
-        return [informationService, this.televisionService, this.switchService];
+        return [informationService, this.televisionService, this.switchService, this.ambilightService];
     }
 };
