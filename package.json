@@ -1,6 +1,6 @@
 {
   "name": "homebridge-philipstv-knitter",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Homebridge module for the Philips TV 49PUS7101 & 75PUS7354",
   "main": "index.js",
   "scripts": {

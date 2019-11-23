@@ -64,8 +64,9 @@ function HttpStatusAccessory(log, config) {
 
     // Define URL & JSON Payload for Actions
 
+    this.base_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version;
     // POWER
-    this.power_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/powerstate";
+    this.power_url = this.base_url + "/powerstate";
     this.power_on_body = JSON.stringify({
         "powerstate": "On"
     });
@@ -74,7 +75,7 @@ function HttpStatusAccessory(log, config) {
     });
 
     // INPUT
-    this.input_url = this.protocol + "://" + this.ip_address + ":" + this.portno + "/" + this.api_version + "/input/key";
+    this.input_url = this.base_url + "/input/key";
 
     // POLLING ENABLED?
     this.interval = parseInt(this.poll_status_interval);
@@ -101,7 +102,39 @@ function HttpStatusAccessory(log, config) {
                 that.switchService.getCharacteristic(Characteristic.On).setValue(that.state_power, null, "statuspoll");
             }
         });
+
+        var statusemitter_ambilight = pollingtoevent(function(done) {
+            that.getAmbilightState(function(error, response) {
+                done(error, response, that.set_attempt);
+            }, "statuspoll_ambilight");
+        }, {
+            longpolling: true,
+            interval: that.interval * 1000,
+            longpollEventName: "statuspoll_ambilight"
+        });
+
+        statusemitter_ambilight.on("statuspoll_ambilight", function(data) {
+            that.state_ambilight = data;
+            if (that.ambilightService) {
+                that.ambilightService.getCharacteristic(Characteristic.On).setValue(that.state_ambilight, null, "statuspoll_ambilight");
+            }
+        });
     }
+
+    // AMBILIGHT
+	this.status_url_ambilight = this.base_url + "/ambilight/power";
+
+	this.on_url_ambilight = this.base_url + "/ambilight/currentconfiguration";
+	this.on_body_ambilight = JSON.stringify({
+		"styleName": "FOLLOW_VIDEO",
+		"isExpert": false,
+		"menuSetting": "NATURAL"
+	});
+
+	this.off_url_ambilight = this.status_url_ambilight
+	this.off_body_ambilight = JSON.stringify({
+		"power": "Off"
+	});
 }
 
 /////////////////////////////
@@ -477,6 +510,60 @@ HttpStatusAccessory.prototype = {
         callback(); // success
     },
 
+    setAmbilightState: function(ambilightState, callback, context) {
+		var that = this;
+
+		//if context is statuspoll, then we need to ensure that we do not set the actual value
+		if (context && context == "statuspoll") {
+			callback(null, ambilightState);
+			return;
+		}
+
+        var url = (ambilightState) ? this.on_url_ambilight : this.off_url_ambilight;
+		var body = (ambilightState) ? this.on_body_ambilight : this.off_body_ambilight;
+        that.log("setAmbilightState - setting state to %s", ambilightState ? "ON" : "OFF");
+        that.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) 
+        {
+            if (error) {
+				that.log('setAmbilightState - failed: %s', error.message);
+				callback(new Error("HTTP attempt failed"), false);
+            } else {
+                that.log('setAmbilightState - succeeded - current state: %s', ambilightState);
+                callback(null, ambilightState);
+            }
+        });
+	},
+
+	getAmbilightState: function(callback, context) {
+		var that = this;
+		//if context is not statuspoll, then we need to get the stored value
+		if ((!context || context != "statuspoll_ambilight") && this.switchHandling == "poll") {
+			callback(null, this.state_ambilight);
+			return;
+		}
+        that.httpRequest(this.status_url_ambilight, "", "GET", this.need_authentication, function(error, response, responseBody) 
+        {
+			var powerstate = 0;
+			if (!error) {
+				if (responseBody) {
+					var responseBodyParsed = JSON.parse(responseBody);
+					if (responseBodyParsed && responseBodyParsed.power) {
+                        powerState = (responseBodyParsed.power == "On") ? 1 : 0;
+					}
+				}
+			} else {
+				that.log('getAmbilightState - actual mode - failed: %s', error.message);
+			}
+
+			if (that.state_ambilight != powerState) {
+				that.log('getAmbilightState - statechange to: %s', powerState);
+			}
+
+			that.state_ambilight = powerState;
+			callback(null, powerState);
+		}.bind(this));
+    },
+    
     getServices: function()
     {
         var that = this;
@@ -492,13 +579,13 @@ HttpStatusAccessory.prototype = {
 
         this.televisionService = new Service.Television();
 	    this.televisionService
-            .setCharacteristic(Characteristic.ConfiguredName, "TV");
+            .setCharacteristic(Characteristic.ConfiguredName, "TV " + config["name"]);
 
         // POWER
-        this.televisionService
-            .getCharacteristic(Characteristic.Active)
-            .on('get', this.getPowerState.bind(this))
-            .on('set', this.setPowerState.bind(this));
+        // this.televisionService
+        //     .getCharacteristic(Characteristic.Active)
+        //     .on('get', this.getPowerState.bind(this))
+        //     .on('set', this.setPowerState.bind(this));
 
         this.televisionService
             .setCharacteristic(

@@ -1,15 +1,15 @@
 # homebridge-philipstv-enhanced
-Homebridge module for Philips TV (with JointSpace enabled) with Power on/off, Sound, Ambilight and source input control
+
+Homebridge module for the Philips TV 49PUS7101 & 75PUS7354
 
 # Description
 
-This plugin is a fork of [homebridge-philipstv-x](https://www.npmjs.com/package/homebridge-philipstv-x) with additional support for Sound control, Ambilight brightness control and input selection control.
-It has been modified to work on a 65OLED873/12 TV (2018 model without Android) and may not work on older one. Code may need ajustement for Ambilight to work on other 2018 models
+Homebridge module for the Philips TV 49PUS7101 & 75PUS7354
 
 # Installation
 
 1. Install homebridge using: npm install -g homebridge
-2. Install this plugin using: npm install -g homebridge-philipstv-enhanced
+2. Install this plugin using: npm install -g homebridge-philipstv-knitter
 3. Update your configuration file. See the sample below.
 
 # Configuration
