@@ -624,6 +624,6 @@ HttpStatusAccessory.prototype = {
             .on('get', this.getAmbilightState.bind(this))
             .on('set', this.setAmbilightState.bind(this));
 
-        return [informationService, this.televisionService, this.switchService, this.ambilightService];
+        return [informationService, this.switchService, this.ambilightService];
     }
 };
