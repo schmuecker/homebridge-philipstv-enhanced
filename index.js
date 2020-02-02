@@ -593,7 +593,7 @@ HttpStatusAccessory.prototype = {
     setAmbilightBrightness: function(ambilightLevel, callback, context) {
 		var TV_Adjusted_ambilightLevel = Math.round(ambilightLevel / 10);
         var url = this.ambilight_config_url;
-        var body = JSON.stringify({"value":{"Nodeid":200,"Controllable":true,"Available":true,"data":{"value":TV_Adjusted_ambilightLevel}}});
+        var body = JSON.stringify({"value":{"Nodeid":2131230769,"Controllable":true,"Available":true,"data":{"value":TV_Adjusted_ambilightLevel}}});
         var that = this;
 
  		this.log.debug("Entering setAmbilightBrightness with context: %s and requested value: %s", context, ambilightLevel);
@@ -717,10 +717,10 @@ HttpStatusAccessory.prototype = {
         
         // AMBILIGHT
         this.ambilightService = new Service.Lightbulb(this.name + " Ambilight", '0e');
-        // this.ambilightService
-        //     .getCharacteristic(Characteristic.On)
-        //     .on('get', this.getAmbilightState.bind(this))
-        //     .on('set', this.setAmbilightState.bind(this));
+        this.ambilightService
+            .getCharacteristic(Characteristic.On)
+            .on('get', this.getAmbilightState.bind(this))
+            .on('set', this.setAmbilightState.bind(this));
 
         this.ambilightService
             .getCharacteristic(Characteristic.Brightness)
