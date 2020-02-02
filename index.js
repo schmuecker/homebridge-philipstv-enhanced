@@ -134,7 +134,11 @@ function HttpStatusAccessory(log, config) {
 	this.off_url_ambilight = this.status_url_ambilight
 	this.off_body_ambilight = JSON.stringify({
 		"power": "Off"
-	});
+    });
+    
+    // AMBILIGHT
+    this.ambilight_status_url = this.base_url + "/menuitems/settings/current";
+    this.ambilight_brightness_body = JSON.stringify({"nodes":[{"nodeid":2131230769}]});
 }
 
 /////////////////////////////
@@ -563,6 +567,101 @@ HttpStatusAccessory.prototype = {
 			callback(null, powerState);
 		}.bind(this));
     },
+
+    setAmbilightBrightnessLoop: function(nCount, url, body, ambilightLevel, callback) {
+        var that = this;
+
+        that.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
+            if (error) {
+                if (nCount > 0) {
+                    that.log('setAmbilightStateLoop - attempt, attempt id: ', nCount - 1);
+                    that.setAmbilightBrightnessLoop(nCount - 1, url, body, ambilightLevel, function(err, state) {
+                        callback(err, state);
+                    });
+                } else {
+                    that.log('setAmbilightBrightnessLoop - failed: %s', error.message);
+                    ambilightLevel = false;
+                    callback(new Error("HTTP attempt failed"), ambilightLevel);
+                }
+            } else {
+                that.log('setAmbilightBrightnessLoop - succeeded - current state: %s', ambilightLevel);
+                callback(null, ambilightLevel);
+            }
+        });
+    },
+
+    setAmbilightBrightness: function(ambilightLevel, callback, context) {
+		var TV_Adjusted_ambilightLevel = Math.round(ambilightLevel / 10);
+        var url = this.ambilight_config_url;
+        var body = JSON.stringify({"value":{"Nodeid":200,"Controllable":true,"Available":true,"data":{"value":TV_Adjusted_ambilightLevel}}});
+        var that = this;
+
+ 		this.log.debug("Entering setAmbilightBrightness with context: %s and requested value: %s", context, ambilightLevel);
+        //if context is statuspoll, then we need to ensure that we do not set the actual value
+        if (context && context == "statuspoll") {
+            callback(null, ambilightLevel);
+            return;
+        }
+
+        this.set_attempt = this.set_attempt + 1;
+
+        that.setAmbilightBrightnessLoop(0, url, body, ambilightLevel, function(error, state) {
+            that.state_ambilightLevel = ambilightLevel;
+            if (error) {
+                that.state_ambilightLevel = false;
+                that.log("setAmbilightBrightness - ERROR: %s", error);
+                if (that.ambilightService) {
+                    that.ambilightService.getCharacteristic(Characteristic.On).setValue(that.state_ambilightLevel, null, "statuspoll");
+                }
+            }
+            callback(error, that.state_ambilightLevel);
+        }.bind(this));
+    },
+
+    getAmbilightBrightness: function(callback, context) {
+        var that = this;
+        var url = this.ambilight_status_url;
+        var body = this.ambilight_brightness_body;
+
+		this.log.debug("Entering %s with context: %s and current value: %s", arguments.callee.name, context, this.state_ambilightLevel);
+        //if context is statuspoll, then we need to request the actual value
+		if ((!context || context != "statuspoll") && this.switchHandling == "poll") {
+            callback(null, this.state_ambilightLevel);
+            return;
+        }
+        if (!this.state_power) {
+                callback(null, 0);
+                return;
+        }
+
+        this.httpRequest(url, body, "POST", this.need_authentication, function(error, response, responseBody) {
+            var tResp = that.state_ambilightLevel;
+            var fctname = "getAmbilightBrightness";
+            if (error) {
+                that.log('%s - ERROR: %s', fctname, error.message);
+            } else {
+                if (responseBody) {
+	                var responseBodyParsed;
+                    try {
+						responseBodyParsed = JSON.parse(responseBody);
+						if (responseBodyParsed && responseBodyParsed.values[0].value.data) {
+							tResp = 10*responseBodyParsed.values[0].value.data.value;
+							that.log.debug('%s - got answer %s', fctname, tResp);
+						} else {
+		                    that.log("%s - Could not parse message: '%s', not updating level", fctname, responseBody);
+						}
+					} catch (e) {
+                        that.log("%s - Got non JSON answer - not updating level: '%s'", fctname, responseBody);
+                    }
+                }
+                if (that.state_ambilightLevel != tResp) {
+                    that.log('%s - Level changed to: %s', fctname, tResp);
+	                that.state_ambilightLevel = tResp;
+                }
+            }
+            callback(null, that.state_ambilightLevel);
+        }.bind(this));
+    },
     
     getServices: function()
     {
@@ -623,6 +722,11 @@ HttpStatusAccessory.prototype = {
             .getCharacteristic(Characteristic.On)
             .on('get', this.getAmbilightState.bind(this))
             .on('set', this.setAmbilightState.bind(this));
+
+        this.ambilightService
+            .getCharacteristic(Characteristic.Brightness)
+            .on('get', this.getAmbilightBrightness.bind(this))
+            .on('set', this.setAmbilightBrightness.bind(this));
 
         return [informationService, this.switchService, this.ambilightService];
     }
