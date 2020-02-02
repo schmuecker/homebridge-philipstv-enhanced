@@ -119,6 +119,23 @@ function HttpStatusAccessory(log, config) {
                 that.ambilightService.getCharacteristic(Characteristic.On).setValue(that.state_ambilight, null, "statuspoll_ambilight");
             }
         });
+
+        var statusemitter_ambilight_brightness = pollingtoevent(function(done) {
+            that.getAmbilightBrightness(function(error, response) {
+                done(error, response, that.set_attempt);
+            }, "statuspoll");
+        }, {
+            longpolling: true,
+            interval: that.interval * 1000,
+            longpollEventName: "statuspoll_ambilight_brightness"
+        });
+
+        statusemitter_ambilight_brightness.on("statuspoll_ambilight_brightness", function(data) {
+            that.state_ambilight_brightness = data;
+            if (that.ambilightService) {
+                that.ambilightService.getCharacteristic(Characteristic.Brightness).setValue(that.state_ambilight_brightness, null, "statuspoll");
+            }
+        }); 
     }
 
     // AMBILIGHT
