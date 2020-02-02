@@ -106,6 +106,23 @@ function HttpStatusAccessory(log, config) {
             }
         });
 
+        var statusemitter_volume_level = pollingtoevent(function(done) {
+            that.getVolumeLevel(function(error, response) {
+                done(error, response, that.set_attempt);
+            }, "statuspoll");
+        }, {
+            longpolling: true,
+            interval: that.interval * 1000,
+            longpollEventName: "statuspoll_volumeLevel"
+        });
+
+        statusemitter.on("statuspoll_volumeLevel", function(data) {
+            that.state_volumeLevel = data;
+            if (that.volumeService) {
+                that.volumeService.getCharacteristic(Characteristic.Brightness).setValue(that.state_volumeLevel, null, "statuspoll");
+            }
+        });
+
         var statusemitter_ambilight = pollingtoevent(function(done) {
             that.getAmbilightState(function(error, response) {
                 done(error, response, that.set_attempt);
