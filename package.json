@@ -1,14 +1,14 @@
 {
-  "name": "homebridge-philipstv-knitter",
-  "version": "0.0.2",
-  "description": "Homebridge module for the Philips TV 49PUS7101 & 75PUS7354",
+  "name": "homebridge-philipstv-schmuecker",
+  "version": "0.0.1",
+  "description": "Homebridge module for Philips TV 55PUS7373",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/konradknitter/homebridge-philipstv-enhanced.git"
+    "url": "git+https://github.com/schmuecker/homebridge-philipstv-enhanced.git"
   },
   "dependencies": {
     "polling-to-event": "^2.0.2",
@@ -25,10 +25,10 @@
     "node": ">=0.12.0",
     "homebridge": ">=0.2.0"
   },
-  "author": "konradknitter",
+  "author": "Tobias Schmücker",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/konradknitter/homebridge-philipstv-enhanced/issues"
+    "url": "https://github.com/schmuecker/homebridge-philipstv-enhanced/issues"
   },
-  "homepage": "https://github.com/konradknitter/homebridge-philipstv-enhanced#readme"
+  "homepage": "https://github.com/schmuecker/homebridge-philipstv-enhanced#readme"
 }

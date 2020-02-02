@@ -577,9 +577,9 @@ HttpStatusAccessory.prototype = {
 			.setCharacteristic(Characteristic.SerialNumber, this.model_serial_no);
 
 
-        this.televisionService = new Service.Television();
-	    this.televisionService
-            .setCharacteristic(Characteristic.ConfiguredName, "TV " + this.name);
+        // this.televisionService = new Service.Television();
+	    // this.televisionService
+        //     .setCharacteristic(Characteristic.ConfiguredName, "TV " + this.name);
 
         // POWER
         // this.televisionService
@@ -587,17 +587,17 @@ HttpStatusAccessory.prototype = {
         //     .on('get', this.getPowerState.bind(this))
         //     .on('set', this.setPowerState.bind(this));
 
-        this.televisionService
-            .setCharacteristic(
-                 Characteristic.SleepDiscoveryMode,
-                 Characteristic.SleepDiscoveryMode.ALWAYS_DISCOVERABLE
-            );
+        // this.televisionService
+        //     .setCharacteristic(
+        //          Characteristic.SleepDiscoveryMode,
+        //          Characteristic.SleepDiscoveryMode.ALWAYS_DISCOVERABLE
+        //     );
 
-        this.televisionService
-            .getCharacteristic(Characteristic.RemoteKey)
-            .on('set', this.sendKey.bind(this));
+        // this.televisionService
+        //     .getCharacteristic(Characteristic.RemoteKey)
+        //     .on('set', this.sendKey.bind(this));
 
-        this.switchService = new Service.Switch(this.name);
+        this.switchService = new Service.Switch(this.name + " Power");
         this.switchService
             .getCharacteristic(Characteristic.On)
             .on('get', this.getPowerState.bind(this))
