@@ -139,6 +139,7 @@ function HttpStatusAccessory(log, config) {
     // AMBILIGHT
     this.ambilight_status_url = this.base_url + "/menuitems/settings/current";
     this.ambilight_brightness_body = JSON.stringify({"nodes":[{"nodeid":2131230769}]});
+    this.ambilight_config_url = this.base_url + "/menuitems/settings/update";
 }
 
 /////////////////////////////
