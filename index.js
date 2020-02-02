@@ -74,6 +74,9 @@ function HttpStatusAccessory(log, config) {
         "powerstate": "Standby"
     });
 
+    // VOLUME
+    this.audio_url = this.base_url + "/audio/volume";
+
     // INPUT
     this.input_url = this.base_url + "/input/key";
 

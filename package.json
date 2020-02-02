@@ -1,6 +1,6 @@
 {
   "name": "homebridge-philipstv-schmuecker",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Homebridge module for Philips TV 55PUS7373",
   "main": "index.js",
   "scripts": {
