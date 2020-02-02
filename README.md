@@ -66,7 +66,7 @@ You can then add username and password key in your homebridge config, example:
   	"poll_status_interval": "60",
   	"model_year": 2016,
   	"has_ambilight": true,
-  	"has_ssh": true,
+  	"has_ssl": true,
   	"username": "deadbeef0815",
   	"password": "deadbeef0815deadbeef0815deadbeef0815deadbeef0815deadbeef0815",
   }
