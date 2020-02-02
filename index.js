@@ -665,7 +665,6 @@ HttpStatusAccessory.prototype = {
     
     getServices: function()
     {
-        var that = this;
 
         var informationService = new Service.AccessoryInformation();
         informationService
@@ -717,11 +716,11 @@ HttpStatusAccessory.prototype = {
         //     .on('set', this.setPreviousInput.bind(this));
         
         // AMBILIGHT
-        this.ambilightService = new Service.Lightbulb(this.name + " Ambilight");
-        this.ambilightService
-            .getCharacteristic(Characteristic.On)
-            .on('get', this.getAmbilightState.bind(this))
-            .on('set', this.setAmbilightState.bind(this));
+        this.ambilightService = new Service.Lightbulb(this.name + " Ambilight", '0e');
+        // this.ambilightService
+        //     .getCharacteristic(Characteristic.On)
+        //     .on('get', this.getAmbilightState.bind(this))
+        //     .on('set', this.setAmbilightState.bind(this));
 
         this.ambilightService
             .getCharacteristic(Characteristic.Brightness)
