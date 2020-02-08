@@ -838,12 +838,12 @@ HttpStatusAccessory.prototype = {
             .on('set', this.setPowerState.bind(this));
 
         // Volume
-        this.volumeService = new Service.Lightbulb(this.name + " Volume", '0b');
+        // this.volumeService = new Service.Lightbulb(this.name + " Volume", '0b');
 
-        this.volumeService
-            .getCharacteristic(Characteristic.Brightness)
-            .on('get', this.getVolumeLevel.bind(this))
-            .on('set', this.setVolumeLevel.bind(this));
+        // this.volumeService
+        //     .getCharacteristic(Characteristic.Brightness)
+        //     .on('get', this.getVolumeLevel.bind(this))
+        //     .on('set', this.setVolumeLevel.bind(this));
 
         // // Next input
         // this.NextInputService = new Service.Switch(this.name + " Next input", '0b');
@@ -871,6 +871,6 @@ HttpStatusAccessory.prototype = {
             .on('get', this.getAmbilightBrightness.bind(this))
             .on('set', this.setAmbilightBrightness.bind(this));
 
-        return [informationService, this.switchService, this.volumeService, this.ambilightService];
+        return [informationService, this.switchService, this.ambilightService];
     }
 };
